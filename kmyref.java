@@ -1,25 +1,11 @@
-import java.util.Scanner;
-import java.awt.EventQueue;
-import javax.swing.JSplitPane;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.BoxLayout;
 import java.awt.event.*;
-import javax.swing.JOptionPane;
+import java.awt.*;
+import javax.swing.*;
+import java.util.*;
 import java.lang.Integer;
 import java.lang.Math;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import javax.swing.JComboBox;
-import java.util.Map;
-import java.util.Hashtable;
 
 public class kmyref extends javax.swing.JFrame{
    int size = 500;
@@ -53,6 +39,8 @@ public class kmyref extends javax.swing.JFrame{
 
    private static Map<Double, PresetData> presetDict = new Hashtable<>();
 
+   private static int num;
+
    public class ResultData{
       double x;
       double y;
@@ -77,7 +65,44 @@ public class kmyref extends javax.swing.JFrame{
          this.png2 = png2;
          this.order = order;
       }
+
+      public double getx(){
+         return this.x;
+      }
+      public double gety(){
+         return this.y;
+      }
+      public String getx1(){
+         return this.x1;
+      }
+      public String getx2(){
+         return this.x2;
+      }
+      public String getystr(){
+         return this.ystr;
+      }
+      public String getRatio1(){
+         return this.ratio1;
+      }
+      public String getRatio2(){
+         return this.ratio2;
+      }
+      public String getPng1(){
+         return this.png1;
+      }
+      public String getPng2(){
+         return this.png2;
+      }
+      public void setOrder(int order){
+         this.order = order;
+      }
+
+      public int getOrder(){
+         return this.order;
+      }
    }
+
+   private static ArrayList<ResultData> resultData;
 
    public static class PresetData{
       String ratio;
@@ -93,6 +118,10 @@ public class kmyref extends javax.swing.JFrame{
       public String getRatio(){
          return this.ratio;
       }
+
+      public int getInt(){
+         return this.intNum;
+      }
    }
 
    public static boolean isPowerOfTwo(int n){
@@ -103,12 +132,12 @@ public class kmyref extends javax.swing.JFrame{
             == (int)(Math.floor(((Math.log(n) / Math.log(2)))));
    }
 
-      public static double round(double value, int places) {
-    if (places < 0) throw new IllegalArgumentException();
+   public static double round(double value, int places) {
+      if (places < 0) throw new IllegalArgumentException();
 
-    BigDecimal bd = new BigDecimal(Double.toString(value));
-    bd = bd.setScale(places, RoundingMode.HALF_UP);
-    return bd.doubleValue();
+      BigDecimal bd = new BigDecimal(Double.toString(value));
+      bd = bd.setScale(places, RoundingMode.HALF_UP);
+      return bd.doubleValue();
    }
 
    public static void setIndividualPreset(Map<Double, PresetData> presetDict, double key, String ratio, double doubleNum, int intNum){
@@ -192,6 +221,14 @@ public class kmyref extends javax.swing.JFrame{
       return result;
    }
 
+   // @Override
+   // public void paintComponent (Graphics g) {
+   //    super.paintComponent(g);
+   //    int square = 900;
+   //    int margin = 50;
+   //    Dimension screen = new Dimension((square + (margin * 2) + 496), square + margin * 2);
+   //    this.setBackGround(Color.white);
+   // }
 
    ActionListener findButtonActionListener = new ActionListener(){
       public void actionPerformed(ActionEvent e){
@@ -236,38 +273,50 @@ public class kmyref extends javax.swing.JFrame{
          }
 
 
-         ArrayList<ResultData> resultData = new ArrayList<ResultData>();
+         resultData = new ArrayList<ResultData>();
+         int resultCount = 0;
          double papersize = round(sqrInt + (sqrSqrt * Math.sqrt(2)), 5);
          double x1 = 0;
          double x2 = 0;
          double y = 0;
          PresetData result1;
          PresetData result2;
-         int num = 0;
+         num = 0;
 
          for(int ixr1 = 0; ixr1 < Math.ceil(papersize); ixr1++){
             for(int ixr2 = 0; ixr2 < Math.ceil(papersize / Math.sqrt(2)); ixr2++){
                for(int iyr1 = 0; iyr1 < Math.ceil(papersize); iyr1++){
                   for(int iyr2 = 0; iyr2 < Math.ceil(papersize / Math.sqrt(2)); iyr2++){
-                     if(((ixr1 != prefInt) && (ixr2 != prefSqrt)) && ((iyr1 != prefInt) && (iyr2 != prefSqrt))){
-                        continue;
-                     } else {
-                        x1 = round(ixr1 + (ixr2 * Math.sqrt(2)), 5);
-                        x2 = round(papersize - x1, 5);
-                        y = round(iyr1 + (iyr2 * Math.sqrt(2)), 5);
+                     x1 = round(ixr1 + (ixr2 * Math.sqrt(2)), 5);
+                     x2 = round(papersize - x1, 5);
+                     y = round(iyr1 + (iyr2 * Math.sqrt(2)), 5);
 
-                        if((x1 != 0) && (y != 0) && (x1 < papersize) && (y <= papersize)){
-                           result1 = preset(presetDict, round(x1 / y, 5));
-                           result2 = preset(presetDict, round(x2 / y, 5));
+                     if((x1 != 0) && (y != 0) && (x1 < papersize) && (y <= papersize)){
+                        result1 = preset(presetDict, round(x1 / y, 5));
+                        result2 = preset(presetDict, round(x2 / y, 5));
 
-                           if (!result1.getRatio().equals("NA") && (!result2.getRatio().equals("NA"))){
-                              if(Double.toString(round(x1 / y, 5)) == Double.toString(round(x2 / y, 5))){
-                                 continue;
+                        if (!result1.getRatio().equals("NA") && (!result2.getRatio().equals("NA"))){
+                           if(Double.toString(round(x1 / y, 5)) == Double.toString(round(x2 / y, 5))){
+                              continue;
+                           }
+
+                           num += 1;
+                           ResultData tempRes = new ResultData (round(x1 / papersize, 5), round(y / papersize, 5), output(ixr1, ixr2), output(sqrInt - ixr1, sqrSqrt - ixr2), output(iyr1, iyr2), result1.getRatio(), result2.getRatio(), "", "", result1.getInt() + result2.getInt());
+
+                           if(((ixr1 == prefInt) && (ixr2 == prefSqrt)) || ((iyr1 == prefInt) && (iyr2 == prefSqrt))){
+                              tempRes.setOrder(tempRes.getOrder() / 10);
+                           }
+                           resultData.add(tempRes);
+                           resultCount ++;
+
+                           if(resultCount > 1){
+                              // int i = resultCount + 1;
+                              for(int i = resultCount + 1; i > 0; i--){
+                                 if(resultData.get(i).getOrder() < resultData.get(i - 1).getOrder()){
+                                    resultData.set(i, resultData.get(i - 1));
+                                    resultData.set(i - 1, tempRes);
+                                 }
                               }
-
-                              num += 1;
-                              // ResultData tempRes = new ResultData (round(x1 / papersize, 5), round(y / papersize, 5), output(ixr1, ixr2), output(sqrInt - ixr1, sqrSqrt - ixr2), output(iyr1, iyr2), result1.getRatio(), result2.getRatio(), "".concat());
-
                            }
                         }
                      }
@@ -275,14 +324,28 @@ public class kmyref extends javax.swing.JFrame{
                }
             }
          }
+         if (num != 0){
+
+         }
       }
    };
 
    public kmyref(){
       splitPane = new JSplitPane();
 
-      topPanel = new JPanel();         // our top component
-      bottomPanel = new JPanel();      // our bottom component
+      topPanel = new JPanel();
+      bottomPanel = new JPanel(true){
+         @Override
+         public void paintComponent(Graphics g){
+            if(num > 0){
+               super.paintComponent(g);
+               int square = 900;
+               int margin = 50;
+               int index = 0;
+               // int xLine = Math.round(square * resultData.get(index).getx());
+            }
+         }
+      };
 
       inputPanel = new JPanel(new GridBagLayout());
       sqrIntText = new JTextField();
