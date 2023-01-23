@@ -39,6 +39,8 @@ public class kmyref extends javax.swing.JFrame{
 
    private static Map<Double, PresetData> presetDict = new Hashtable<>();
 
+   private static int indexRes;
+
    private static int num;
 
    public class ResultData{
@@ -232,6 +234,7 @@ public class kmyref extends javax.swing.JFrame{
 
    ActionListener findButtonActionListener = new ActionListener(){
       public void actionPerformed(ActionEvent e){
+         indexRes = 0;
          int sqrInt = 0; 
          int sqrSqrt = 0;
          int prefInt = 0;
@@ -296,7 +299,7 @@ public class kmyref extends javax.swing.JFrame{
                         result2 = preset(presetDict, round(x2 / y, 5));
 
                         if (!result1.getRatio().equals("NA") && (!result2.getRatio().equals("NA"))){
-                           if(Double.toString(round(x1 / y, 5)) == Double.toString(round(x2 / y, 5))){
+                           if(Double.toString(round(x1 / y, 5)).equals(Double.toString(round(x2 / y, 5)))){
                               continue;
                            }
 
@@ -310,8 +313,7 @@ public class kmyref extends javax.swing.JFrame{
                            resultCount ++;
 
                            if(resultCount > 1){
-                              // int i = resultCount + 1;
-                              for(int i = resultCount + 1; i > 0; i--){
+                              for(int i = resultCount - 1; i > 0; i--){
                                  if(resultData.get(i).getOrder() < resultData.get(i - 1).getOrder()){
                                     resultData.set(i, resultData.get(i - 1));
                                     resultData.set(i - 1, tempRes);
@@ -339,10 +341,65 @@ public class kmyref extends javax.swing.JFrame{
          public void paintComponent(Graphics g){
             if(num > 0){
                super.paintComponent(g);
+               Graphics2D g2 = (Graphics2D) g;
                int square = 900;
                int margin = 50;
-               int index = 0;
-               // int xLine = Math.round(square * resultData.get(index).getx());
+               int xLine = (int)Math.round(square * resultData.get(indexRes).getx());
+               int yLine = (int)Math.round(square * resultData.get(indexRes).gety());
+
+               double endPointCoor1 = resultData.get(indexRes).getx();
+               double endPointCoor2 = resultData.get(indexRes).gety();
+
+               double endPointCoor1_x = 0;
+               double endPointCoor1_y = 0;
+               double endPointCoor2_x = 0;
+               double endPointCoor2_y = 0;
+
+               if(endPointCoor1 > 1){
+                  endPointCoor1_x = square + margin;
+                  endPointCoor1_y = square + margin - (square / endPointCoor1);
+               } else {
+                  endPointCoor1_x = square * endPointCoor1 + margin;
+                  endPointCoor1_y = margin;
+               }
+
+               if (endPointCoor2 > 1){
+                  endPointCoor2_x = margin;
+                  endPointCoor2_y = square + margin - (square / endPointCoor2);
+               } else {
+                  endPointCoor2_x = square * (1 - endPointCoor2) + margin;
+                  endPointCoor2_y = margin;
+               }
+
+               this.setPreferredSize(new Dimension(square + (margin * 2) + 496, square + margin * 20));
+               this.setBackground(Color.white);
+
+               // green rect
+               g2.setColor(new Color(0, 255, 0, 64));
+               g2.fillRect(margin, square + margin - yLine, xLine, yLine);
+               
+               // blue rect
+               g2.setColor(new Color(0, 0, 255, 64));
+               g2.fillRect(margin + xLine, square + margin - yLine, square - xLine, yLine);
+
+               // green, blue, and 2 red lines
+               g2.setColor(new Color(20, 140, 20));
+               g2.setStroke(new BasicStroke(5));
+               g2.drawLine(margin, square + margin, (int)endPointCoor1_x, (int)endPointCoor1_y);
+               g2.setColor(new Color(0, 0, 255));
+               g2.drawLine(square + margin, square + margin, (int)endPointCoor2_x, (int)endPointCoor2_y);
+               g2.setColor(new Color(255, 0, 0));
+               g2.setStroke(new BasicStroke(4));
+               g2.drawLine(margin, margin - yLine, square + margin, square + margin - yLine);
+               g2.drawLine(margin + xLine, margin, margin + xLine, square + margin);
+
+               // borders
+               g2.setColor(new Color(0, 0, 0));
+               g2.setStroke(new BasicStroke(3));
+               g2.drawLine(margin, margin, margin, square + margin);
+               g2.drawLine(margin, square + margin, square + margin, square + margin);
+               g2.drawLine(margin, margin, square + margin, margin);
+               g2.drawLine(square + margin, margin, square + margin, square + margin);
             }
          }
       };
@@ -400,7 +457,6 @@ public class kmyref extends javax.swing.JFrame{
       gbc.gridx = 4; gbc.gridy = 1;
       inputPanel.add(new JLabel("√2"), gbc);
 
-      // flagPanel.setLayout(new BoxLayout(flagPanel, BoxLayout.Y_AXIS));
       gbc.gridx = 0; gbc.gridy = 0; 
       flagPanel.add(new JLabel("Filter -√2:"), gbc);
       gbc.gridx = 1; gbc.gridy = 0; 
@@ -426,6 +482,7 @@ public class kmyref extends javax.swing.JFrame{
    public static void main(String args[]){
       // Map<Double, PresetData> presetDict = new Hashtable<>();
       initilizePresetData(presetDict);
+      indexRes = 0;
 
       EventQueue.invokeLater(new Runnable(){
          @Override
