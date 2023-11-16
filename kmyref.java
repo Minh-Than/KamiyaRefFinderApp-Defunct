@@ -1,5 +1,10 @@
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.awt.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.util.*;
 import java.lang.Integer;
@@ -44,16 +49,16 @@ public class kmyref extends javax.swing.JFrame{
    private static int num;
 
    public class ResultData{
-      double x;
-      double y;
-      String x1;
-      String x2;
-      String ystr;
-      String ratio1;
-      String ratio2;
-      String png1;
-      String png2;
-      int order;
+      private double x;
+      private double y;
+      private String x1;
+      private String x2;
+      private String ystr;
+      private String ratio1;
+      private String ratio2;
+      private String png1;
+      private String png2;
+      private int order;
 
       public ResultData(double x, double y, String x1, String x2, String ystr, String ratio1, String ratio2, String png1, String png2, int order){
          this.x = x;
@@ -98,7 +103,6 @@ public class kmyref extends javax.swing.JFrame{
       public void setOrder(int order){
          this.order = order;
       }
-
       public int getOrder(){
          return this.order;
       }
@@ -223,15 +227,6 @@ public class kmyref extends javax.swing.JFrame{
       return result;
    }
 
-   // @Override
-   // public void paintComponent (Graphics g) {
-   //    super.paintComponent(g);
-   //    int square = 900;
-   //    int margin = 50;
-   //    Dimension screen = new Dimension((square + (margin * 2) + 496), square + margin * 2);
-   //    this.setBackGround(Color.white);
-   // }
-
    ActionListener findButtonActionListener = new ActionListener(){
       public void actionPerformed(ActionEvent e){
          indexRes = 0;
@@ -249,7 +244,7 @@ public class kmyref extends javax.swing.JFrame{
             }
             catch (NumberFormatException ex){
                // ex.printStackTrace();
-               JOptionPane.showMessageDialog(null, "The input must only be integer. Please try Again.","Wrong Input Format", JOptionPane.WARNING_MESSAGE);
+               JOptionPane.showMessageDialog(null, "The input must only be integer. Please try again.","Wrong Input Format", JOptionPane.WARNING_MESSAGE);
                return;
             }
          } // Has no input 
@@ -327,8 +322,16 @@ public class kmyref extends javax.swing.JFrame{
             }
          }
          if (num != 0){
-
+            for(int data = 2; data < resultData.size(); data++){
+               drawImage(resultData.get(data), data);
+            }
          }
+         
+         ImageIcon imageIcon = new ImageIcon("result/1.png");
+         JLabel tempPanel = new JLabel(imageIcon);
+
+         bottomPanel.add(tempPanel);
+         bottomPanel.repaint();
       }
    };
 
@@ -336,73 +339,7 @@ public class kmyref extends javax.swing.JFrame{
       splitPane = new JSplitPane();
 
       topPanel = new JPanel();
-      bottomPanel = new JPanel(true){
-         @Override
-         public void paintComponent(Graphics g){
-            if(num > 0){
-               super.paintComponent(g);
-               Graphics2D g2 = (Graphics2D) g;
-               int square = 900;
-               int margin = 50;
-               int xLine = (int)Math.round(square * resultData.get(indexRes).getx());
-               int yLine = (int)Math.round(square * resultData.get(indexRes).gety());
-
-               double endPointCoor1 = resultData.get(indexRes).getx();
-               double endPointCoor2 = resultData.get(indexRes).gety();
-
-               double endPointCoor1_x = 0;
-               double endPointCoor1_y = 0;
-               double endPointCoor2_x = 0;
-               double endPointCoor2_y = 0;
-
-               if(endPointCoor1 > 1){
-                  endPointCoor1_x = square + margin;
-                  endPointCoor1_y = square + margin - (square / endPointCoor1);
-               } else {
-                  endPointCoor1_x = square * endPointCoor1 + margin;
-                  endPointCoor1_y = margin;
-               }
-
-               if (endPointCoor2 > 1){
-                  endPointCoor2_x = margin;
-                  endPointCoor2_y = square + margin - (square / endPointCoor2);
-               } else {
-                  endPointCoor2_x = square * (1 - endPointCoor2) + margin;
-                  endPointCoor2_y = margin;
-               }
-
-               this.setPreferredSize(new Dimension(square + (margin * 2) + 496, square + margin * 20));
-               this.setBackground(Color.white);
-
-               // green rect
-               g2.setColor(new Color(0, 255, 0, 64));
-               g2.fillRect(margin, square + margin - yLine, xLine, yLine);
-               
-               // blue rect
-               g2.setColor(new Color(0, 0, 255, 64));
-               g2.fillRect(margin + xLine, square + margin - yLine, square - xLine, yLine);
-
-               // green, blue, and 2 red lines
-               g2.setColor(new Color(20, 140, 20));
-               g2.setStroke(new BasicStroke(5));
-               g2.drawLine(margin, square + margin, (int)endPointCoor1_x, (int)endPointCoor1_y);
-               g2.setColor(new Color(0, 0, 255));
-               g2.drawLine(square + margin, square + margin, (int)endPointCoor2_x, (int)endPointCoor2_y);
-               g2.setColor(new Color(255, 0, 0));
-               g2.setStroke(new BasicStroke(4));
-               g2.drawLine(margin, margin - yLine, square + margin, square + margin - yLine);
-               g2.drawLine(margin + xLine, margin, margin + xLine, square + margin);
-
-               // borders
-               g2.setColor(new Color(0, 0, 0));
-               g2.setStroke(new BasicStroke(3));
-               g2.drawLine(margin, margin, margin, square + margin);
-               g2.drawLine(margin, square + margin, square + margin, square + margin);
-               g2.drawLine(margin, margin, square + margin, margin);
-               g2.drawLine(square + margin, margin, square + margin, square + margin);
-            }
-         }
-      };
+      bottomPanel = new JPanel();
 
       inputPanel = new JPanel(new GridBagLayout());
       sqrIntText = new JTextField();
@@ -477,6 +414,90 @@ public class kmyref extends javax.swing.JFrame{
       findButton.addActionListener(findButtonActionListener);
 
       pack();
+   }
+
+      // Function to draw an image on the given graphics context
+   private static void drawImage(ResultData result, int num) {
+      int square = 900;
+      int margin = 50;
+
+      BufferedImage bufferedImage = new BufferedImage(square + (margin * 2) + 496, square + margin * 2, BufferedImage.TYPE_4BYTE_ABGR);
+      Graphics g = bufferedImage.getGraphics();
+      if(num > 0){
+         Graphics2D g2 = (Graphics2D) g;
+         int xLine = (int)Math.round(square * result.getx());
+         int yLine = (int)Math.round(square * result.gety());
+
+         double endPointCoor1 = result.getx() / result.gety();
+         double endPointCoor2 = (1 - result.getx()) / result.gety();
+
+         double endPointCoor1_x = 0;
+         double endPointCoor1_y = 0;
+         double endPointCoor2_x = 0;
+         double endPointCoor2_y = 0;
+
+         if(endPointCoor1 > 1){
+            endPointCoor1_x = square + margin;
+            endPointCoor1_y = square + margin - (square / endPointCoor1);
+         } else {
+            endPointCoor1_x = (square * endPointCoor1) + margin;
+            endPointCoor1_y = margin;
+         }
+
+         if (endPointCoor2 > 1){
+            endPointCoor2_x = margin;
+            endPointCoor2_y = square + margin - (square / endPointCoor2);
+         } else {
+            endPointCoor2_x = square * (1 - endPointCoor2) + margin;
+            endPointCoor2_y = margin;
+         }
+
+         // green rect
+         g2.setColor(new Color(0, 255, 0, 64));
+         g2.fillRect(margin, square + margin - yLine, xLine, yLine);
+         
+         // blue rect
+         g2.setColor(new Color(0, 0, 255, 64));
+         g2.fillRect(margin + xLine, square + margin - yLine, square - xLine, yLine);
+
+         // green, blue, and 2 red lines
+         g2.setColor(new Color(20, 140, 20));
+         g2.setStroke(new BasicStroke(5));
+         g2.drawLine(margin, square + margin, (int)endPointCoor1_x, (int)endPointCoor1_y);
+         g2.setColor(new Color(0, 0, 255));
+         g2.drawLine(square + margin, square + margin, (int)endPointCoor2_x, (int)endPointCoor2_y);
+         g2.setColor(new Color(255, 0, 0));
+         g2.setStroke(new BasicStroke(4));
+         g2.drawLine(margin, square + margin - yLine, square + margin, square + margin - yLine);
+         g2.drawLine(margin + xLine, margin, margin + xLine, square + margin);
+
+         // borders
+         g2.setColor(new Color(0, 0, 0));
+         g2.setStroke(new BasicStroke(3));
+         g2.drawLine(margin, margin, margin, square + margin);
+         g2.drawLine(margin, square + margin, square + margin, square + margin);
+         g2.drawLine(margin, margin, square + margin, margin);
+         g2.drawLine(square + margin, margin, square + margin, square + margin);
+
+         saveImage(bufferedImage, (num - 1) + ".png");
+      }
+   }
+
+   // Function to save the contents of a component as an image file
+   private static void saveImage(BufferedImage img, String fileName) {
+      // Create the folder if it doesn't exist
+      File folder = new File(System.getProperty("user.dir"), "result");
+      if (!folder.exists()) {
+         folder.mkdirs();
+      }
+
+      // Save the image to a file using the ImageIO class
+      try {
+      ImageIO.write(img, "png", new File(folder, fileName));
+      System.out.println("Image saved as " + fileName);
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
    }
 
    public static void main(String args[]){
