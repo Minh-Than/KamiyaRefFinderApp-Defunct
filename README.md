@@ -1,3 +1,3 @@
-# KamiyaRefFinderApp
+# KamiyaRefFinderApp (Defunct)
 
-This is a port of Satoshi Kamiya's reference finding program into a Java application
+Migrated to [new repo](https://github.com/Minh-Than/JavaKamiyaRef)
